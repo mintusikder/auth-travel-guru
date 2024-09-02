@@ -3,11 +3,13 @@ import NavBar from "./NavBar";
 import { useContext, useState } from "react";
 import { AuthContext } from "../authProvider/AuthProvider";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { sendEmailVerification, updateProfile } from "firebase/auth";
 
 const Registration = () => {
   const { createUser } = useContext(AuthContext);
   const [show, setShow] = useState(false);
   const [regError, setRegError] = useState("");
+  const [verificationSent, setVerificationSent] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const handelRegistration = (e) => {
@@ -15,6 +17,7 @@ const Registration = () => {
     const form = e.currentTarget;
     const formData = new FormData(e.currentTarget);
     const email = formData.get("email");
+    const name = formData.get("name");
     const password = formData.get("password");
     //password validation
     if (password > 6) {
@@ -27,9 +30,25 @@ const Registration = () => {
     console.log(email, password);
     createUser(email, password)
       .then((result) => {
-        console.log(result.user);
-        navigate(location?.state ? location.state : "/");
-        form.reset();
+        sendEmailVerification(result.user)
+          .then(() => {
+            setVerificationSent(true);
+            console.log(result.user);
+            //update profile
+            updateProfile(result.user, {
+              displayName: name,
+              photoURL: "https://example.com/jane-q-user/profile.jpg",
+            });
+            navigate(location?.state ? location.state : "/");
+            form.reset();
+            alert(
+              "A verification email has been sent. Please verify your email to complete registration."
+            );
+          })
+          .catch((error) => {
+            console.error("Error sending verification email:", error);
+            setRegError("Failed to send verification email. Please try again.");
+          });
       })
       .catch((error) => {
         console.error(error);
@@ -52,7 +71,7 @@ const Registration = () => {
                 />
                 <hr />
               </div>
-              <div className="form-control">
+              {/* <div className="form-control">
                 <input
                   type="name"
                   name="name"
@@ -60,7 +79,7 @@ const Registration = () => {
                   className="input "
                 />
                 <hr />
-              </div>
+              </div> */}
               <div className="form-control">
                 <input
                   type="email"
@@ -96,6 +115,11 @@ const Registration = () => {
             </div>
           </form>
           {regError && <p className="mt-4 text-red-600">{regError}</p>}
+          {verificationSent && (
+            <p className="mt-4 text-green-600">
+              Verification email sent. Please check your email.
+            </p>
+          )}
           <p className="text-center mt-4">
             Dont have an account?{" "}
             <Link to="/login" className="text-orange-600 font-bold underline">

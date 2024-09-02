@@ -1,10 +1,11 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import NavBar from "./NavBar";
-import { useContext, useRef } from "react";
+import { useContext, useRef, useState } from "react";
 import { AuthContext } from "../authProvider/AuthProvider";
 
 const Login = () => {
   const { loginUser, resetPass } = useContext(AuthContext);
+  const [loginError, setLoginError] = useState("");
   const location = useLocation();
   const navigate = useNavigate();
   const emailRef = useRef();
@@ -16,9 +17,13 @@ const Login = () => {
     const password = formData.get("password");
     loginUser(email, password)
       .then((result) => {
-        console.log(result.user);
-        navigate(location?.state ? location.state : "/");
-        form.reset();
+        if (result.user.emailVerified) {
+          console.log(result.user);
+          form.reset();
+          navigate(location?.state ? location.state : "/");
+        } else {
+          setLoginError("Please verify your email before logging in.");
+        }
       })
       .catch((error) => {
         console.error(error);
@@ -31,6 +36,7 @@ const Login = () => {
       console.log("Enter your email address");
     } else if (!/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
       alert("Enter a valid address");
+      return;
     }
     resetPass(email)
       .then(() => {
@@ -96,6 +102,7 @@ const Login = () => {
               <button className="btn btn-warning">Login</button>
             </div>
           </form>
+          {loginError && <p className="mt-4 text-red-600">{loginError}</p>}
           <p className="text-center mt-4">
             Dont have an account?{" "}
             <Link
