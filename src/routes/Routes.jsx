@@ -5,6 +5,7 @@ import Login from "../components/Login";
 import Registration from "../components/Registration";
 import News from "../components/News";
 import PrivateRoutes from "./PrivateRoutes";
+import Destination from "../components/Destination";
 
 const router = createBrowserRouter([
   {
@@ -24,6 +25,14 @@ const router = createBrowserRouter([
         element: (
           <PrivateRoutes>
             <News></News>
+          </PrivateRoutes>
+        ),
+      },
+      {
+        path: "/destination",
+        element: (
+          <PrivateRoutes>
+            <Destination></Destination>
           </PrivateRoutes>
         ),
       },
