@@ -2,13 +2,14 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import NavBar from "./NavBar";
 import { useContext, useState } from "react";
 import { AuthContext } from "../authProvider/AuthProvider";
-import { FaEye,FaEyeSlash } from "react-icons/fa";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const Registration = () => {
   const { createUser } = useContext(AuthContext);
-  const [show,setShow] = useState(false)
-  const location = useLocation()
-  const navigate = useNavigate()
+  const [show, setShow] = useState(false);
+  const [regError, setRegError] = useState("");
+  const location = useLocation();
+  const navigate = useNavigate();
   const handelRegistration = (e) => {
     e.preventDefault();
     const form = e.currentTarget;
@@ -16,11 +17,18 @@ const Registration = () => {
     const email = formData.get("email");
     const password = formData.get("password");
     //password validation
+    if (password > 6) {
+      setRegError("Password should be at least 6 characters");
+      return;
+    } else if (!/[A-Z]/.test(password)) {
+      setRegError("Password must include at least one uppercase letter.");
+      return;
+    }
     console.log(email, password);
     createUser(email, password)
       .then((result) => {
         console.log(result.user);
-        navigate(location?.state ? location.state : "/")
+        navigate(location?.state ? location.state : "/");
         form.reset();
       })
       .catch((error) => {
@@ -64,18 +72,21 @@ const Registration = () => {
                 <hr />
               </div>
               <div className="form-control">
-            <div className="relative">
-            <input
-                  type={show?"text":"password"}
-                  name="password"
-                  placeholder="password"
-                  className="input w-full"
-                  required
-                />
-                <span className="absolute mt-4 right-3" onClick={()=>setShow(!show)}>
-                {show ?  <FaEye /> :<FaEyeSlash />}
-                </span>
-            </div>
+                <div className="relative">
+                  <input
+                    type={show ? "text" : "password"}
+                    name="password"
+                    placeholder="password"
+                    className="input w-full"
+                    required
+                  />
+                  <span
+                    className="absolute mt-4 right-3"
+                    onClick={() => setShow(!show)}
+                  >
+                    {show ? <FaEye /> : <FaEyeSlash />}
+                  </span>
+                </div>
                 <hr />
               </div>
             </div>
@@ -84,6 +95,7 @@ const Registration = () => {
               <button className="btn btn-warning">Registration</button>
             </div>
           </form>
+          {regError && <p className="mt-4 text-red-600">{regError}</p>}
           <p className="text-center mt-4">
             Dont have an account?{" "}
             <Link to="/login" className="text-orange-600 font-bold underline">

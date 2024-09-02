@@ -1,28 +1,45 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import NavBar from "./NavBar";
-import { useContext } from "react";
+import { useContext, useRef } from "react";
 import { AuthContext } from "../authProvider/AuthProvider";
 
 const Login = () => {
-  const {loginUser} = useContext(AuthContext)
-  const location = useLocation()
-  const navigate = useNavigate()
-  const handelLogin = e =>{
-    e.preventDefault()
-    const form = e.currentTarget
-    const formData = new FormData(e.currentTarget)
-    const email = formData.get("email")
-    const password = formData.get("password")
-    loginUser(email,password)
-    .then(result =>{
-      console.log(result.user)
-      navigate(location?.state ? location.state : "/")
-      form.reset()
-    })
-    .catch(error =>{
-      console.error(error)
-    })
-  }
+  const { loginUser, resetPass } = useContext(AuthContext);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const emailRef = useRef();
+  const handelLogin = (e) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("email");
+    const password = formData.get("password");
+    loginUser(email, password)
+      .then((result) => {
+        console.log(result.user);
+        navigate(location?.state ? location.state : "/");
+        form.reset();
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
+  const handelForgot = () => {
+    const email = emailRef.current.value;
+    console.log(email);
+    if (!email) {
+      console.log("Enter your email address");
+    } else if (!/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+      alert("Enter a valid address");
+    }
+    resetPass(email)
+      .then(() => {
+        alert("Please check your email");
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
   return (
     <div>
       <NavBar></NavBar>
@@ -31,8 +48,9 @@ const Login = () => {
           <h2 className="text-2xl font-bold mb-6">Login</h2>
           <form onSubmit={handelLogin} className="">
             <div className="space-y-6">
-              <div >
+              <div>
                 <input
+                  ref={emailRef}
                   type="email"
                   name="email"
                   placeholder="email"
@@ -65,6 +83,7 @@ const Login = () => {
               <div>
                 <label className="label">
                   <a
+                    onClick={handelForgot}
                     href="#"
                     className="label-text-alt link link-hover text-orange-600"
                   >
