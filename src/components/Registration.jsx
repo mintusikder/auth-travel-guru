@@ -1,14 +1,31 @@
 import { Link } from "react-router-dom";
 import NavBar from "./NavBar";
+import { useContext } from "react";
+import { AuthContext } from "../authProvider/AuthProvider";
 
 const Registration = () => {
+  const {createUser} = useContext(AuthContext)
+  const handelRegistration = e =>{
+    e.preventDefault()
+    const form = new FormData(e.currentTarget)
+    const email = form.get("email")
+    const password = form.get("password")
+    console.log(email,password)
+    createUser(email,password)
+    .then(result =>{
+      console.log(result.user)
+    })
+    .catch(error =>{
+      console.error(error)
+    })
+  }
   return (
     <div>
       <NavBar></NavBar>
       <div className="hero  min-h-screen">
         <div className=" w-full max-w-lg border-2 p-12">
           <h2 className="text-2xl font-bold mb-6">Create an account</h2>
-          <form className="">
+          <form onSubmit={handelRegistration} className="">
             <div className="space-y-6">
             <div className="form-control">
               <input
