@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import NavBar from "./NavBar";
 import { useContext, useState } from "react";
 import { AuthContext } from "../authProvider/AuthProvider";
@@ -7,16 +7,20 @@ import { FaEye,FaEyeSlash } from "react-icons/fa";
 const Registration = () => {
   const { createUser } = useContext(AuthContext);
   const [show,setShow] = useState(false)
+  const location = useLocation()
+  const navigate = useNavigate()
   const handelRegistration = (e) => {
     e.preventDefault();
     const form = e.currentTarget;
     const formData = new FormData(e.currentTarget);
     const email = formData.get("email");
     const password = formData.get("password");
+    //password validation
     console.log(email, password);
     createUser(email, password)
       .then((result) => {
         console.log(result.user);
+        navigate(location?.state ? location.state : "/")
         form.reset();
       })
       .catch((error) => {
