@@ -4,7 +4,7 @@ import { useContext, useRef, useState } from "react";
 import { AuthContext } from "../authProvider/AuthProvider";
 
 const Login = () => {
-  const { loginUser, resetPass } = useContext(AuthContext);
+  const { loginUser, resetPass, googleLogin } = useContext(AuthContext);
   const [loginError, setLoginError] = useState("");
   const location = useLocation();
   const navigate = useNavigate();
@@ -45,6 +45,13 @@ const Login = () => {
       .catch((error) => {
         console.error(error);
       });
+  };
+  const handelGoogleLogin = () => {
+    googleLogin()
+      .then((result) => {
+        console.log(result.user);
+      })
+      .then((error) => console.error(error));
   };
   return (
     <div>
@@ -112,6 +119,10 @@ const Login = () => {
               Create Account{" "}
             </Link>
           </p>
+          <hr className="mb-5 mt-5" />
+          <button onClick={handelGoogleLogin} className="btn w-full">
+            Continue with Google
+          </button>
         </div>
       </div>
     </div>
